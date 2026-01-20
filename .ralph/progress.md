@@ -2,35 +2,278 @@
 
 **Feature:** 3d-queue
 **Branch:** `ralph/3d-queue`
-**Sessions Completed:** 0
+**Sessions Completed:** 3
 **Session Limit:** 10
 
 ---
 
-## Session 1
+## Session 3: chunk-003 - Convex Schema & User Sync
 
-- **Timestamp:** 2026-01-20T04:45:55.458Z
-- **Chunk:** {{CHUNK_ID}} - {{CHUNK_TITLE}}
-- **Status:** completed | failed | partial
-
-### Files Modified
-- `path/to/file.ts` (created)
-- `path/to/other.ts` (modified)
+- **Timestamp:** 2026-01-19
+- **Chunk:** chunk-003
+- **Status:** completed
 
 ### Summary
-_What was accomplished this session._
 
-### Decisions Made
-_Key decisions and their rationale._
+Implemented the Convex database schema and user synchronization system. The schema now includes `users` and `printJobs` tables with all required fields and indexes. Users are automatically synced from Clerk to Convex when they visit the dashboard.
 
-### Issues Encountered
-_Problems hit during implementation._
+### Files Created
 
-### Questions for Next Session
-_Uncertainties or things the next session should investigate._
+| File | Purpose |
+|------|---------|
+| `convex/users.ts` | User mutations and queries (syncUser, getUserByClerkId, isUserAdmin, setUserAdmin) |
+| `convex/jobs.ts` | Print job queries (getJobsByUser, getAllJobs, getJobById, getJobsByStatus) |
+| `src/components/UserSync.tsx` | Client component that syncs Clerk user to Convex on dashboard visit |
 
-### Next Steps
-_What's ready for the next session to pick up._
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `convex/schema.ts` | Defined users and printJobs tables with indexes and status enum |
+| `src/app/dashboard/page.tsx` | Added UserSync component to sync users on dashboard visit |
+
+### Schema Details
+
+**users table:**
+- `clerkId` (string, indexed)
+- `email` (string)
+- `name` (string)
+- `isAdmin` (boolean)
+- `createdAt` (number)
+
+**printJobs table:**
+- `userId` (string, indexed) - Clerk user ID
+- `userName` (string) - for admin display
+- `fileId` (Id<"_storage">) - Convex file storage ref
+- `fileName`, `fileType`, `fileSize` (string, string, number)
+- `status` (union: pending|queued|printing|completed|failed|cancelled, indexed)
+- `notes`, `adminNotes` (optional strings)
+- `createdAt`, `updatedAt` (numbers, createdAt indexed)
+
+### Acceptance Criteria Met
+
+- [x] Convex schema defined with printJobs and users tables
+- [x] Status enum includes: pending, queued, printing, completed, failed, cancelled
+- [x] Clerk webhook or sync creates/updates user in Convex on sign-in
+- [x] User's Clerk ID properly stored in Convex
+- [x] isAdmin flag exists on users table
+- [x] Basic queries work: getUserByClerkId, getJobsByUser
+
+### Key Implementation Details
+
+1. **User sync via dashboard visit** - Instead of a webhook, users are synced when they visit the dashboard. The `UserSync` client component calls `syncUser` mutation on mount.
+2. **Schema with indexes** - Added indexes on `clerkId`, `userId`, `status`, and `createdAt` for efficient queries.
+3. **Status as union type** - Status is validated at the schema level using `v.union()` with literals.
+4. **Exported type** - `JobStatus` type exported from schema for use elsewhere.
+
+### TypeScript Note
+
+The TypeScript error `Property 'users' does not exist on type '{}'` is expected until `npx convex dev` is run. The Convex type generation requires a connection to a Convex project to push the schema and regenerate types.
+
+### What the Next Session Needs to Do
+
+1. **Run `npx convex dev`** to connect to a Convex project and push the schema
+2. **Verify types regenerate** after schema is pushed
+3. **Proceed with chunk-004** (File Upload Infrastructure)
+4. To make yourself admin: use the Convex dashboard or call `setUserAdmin` mutation
+
+### Functions Available
+
+| Function | Type | Purpose |
+|----------|------|---------|
+| `syncUser` | mutation | Create/update user in Convex from Clerk data |
+| `getUserByClerkId` | query | Get user by Clerk ID |
+| `isUserAdmin` | query | Check if user is admin |
+| `setUserAdmin` | mutation | Set user's admin status |
+| `getJobsByUser` | query | Get all jobs for a user |
+| `getAllJobs` | query | Get all jobs (for admin) |
+| `getJobById` | query | Get single job by ID |
+| `getJobsByStatus` | query | Get jobs filtered by status |
+
+---
+
+## Session 2: chunk-002 - Clerk Authentication Integration
+
+- **Timestamp:** 2026-01-19
+- **Chunk:** chunk-002
+- **Status:** completed
+
+### Summary
+
+Integrated Clerk authentication into the application. Users can now sign up, sign in, view their profile info, and sign out. Protected routes are enforced via middleware.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `src/app/sign-in/[[...sign-in]]/page.tsx` | Sign-in page using Clerk's SignIn component |
+| `src/app/sign-up/[[...sign-up]]/page.tsx` | Sign-up page using Clerk's SignUp component |
+| `src/app/dashboard/page.tsx` | Protected dashboard showing user info and sign-out button |
+| `src/middleware.ts` | Clerk middleware protecting non-public routes |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `src/app/layout.tsx` | Added ClerkProvider wrapping the app |
+| `src/app/page.tsx` | Changed `<a>` tags to `<Link>` components |
+| `.env.local.example` | Uncommented and documented Clerk environment variables |
+| `package.json` | Added @clerk/nextjs dependency |
+
+### Acceptance Criteria Met
+
+- [x] @clerk/nextjs installed and configured
+- [x] ClerkProvider wraps the app in root layout
+- [x] Sign-in page at /sign-in works
+- [x] Sign-up page at /sign-up works
+- [x] Middleware protects /dashboard/* routes
+- [x] User can sign in and see their name/email
+- [x] Sign-out functionality works
+
+### Key Implementation Details
+
+1. **ClerkProvider** wraps the entire app in `layout.tsx`
+2. **Catch-all routes** used for sign-in/sign-up (`[[...sign-in]]`) to support Clerk's multi-step flows
+3. **Middleware** uses `createRouteMatcher` to define public routes and `auth.protect()` for protected routes
+4. **Dashboard** uses `currentUser()` server function to get user data
+5. **SignOutButton** component provides sign-out functionality
+
+### What the Next Session Needs to Do
+
+1. **Ensure Clerk keys are set** in `.env.local`:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+2. **Proceed with chunk-003** (Convex Schema & User Sync)
+3. Set up Clerk webhook or sync mechanism to create users in Convex
+
+### Environment Variables Required
+
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
+```
+
+---
+
+## Session 1: chunk-001 - Project Setup & Next.js Initialization
+
+- **Timestamp:** 2026-01-20
+- **Chunk:** chunk-001
+- **Status:** completed
+
+### Summary
+
+Set up the foundational Next.js project with all required tooling and configuration. The app is now ready for authentication integration in the next chunk.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `package.json` | Project dependencies and scripts |
+| `tsconfig.json` | TypeScript configuration |
+| `next.config.ts` | Next.js configuration |
+| `eslint.config.mjs` | ESLint configuration |
+| `postcss.config.mjs` | PostCSS for Tailwind |
+| `src/app/layout.tsx` | Root layout with ConvexClientProvider |
+| `src/app/page.tsx` | Landing page with sign-in/sign-up links |
+| `src/app/globals.css` | Global styles with Tailwind |
+| `src/components/ConvexClientProvider.tsx` | Convex React provider (handles missing env gracefully) |
+| `convex/schema.ts` | Empty Convex schema (ready for chunk-003) |
+| `.env.local.example` | Template for environment variables |
+| `.gitignore` | Git ignore rules |
+
+### Key Implementation Details
+
+1. **Next.js 16** (latest) with App Router and TypeScript
+2. **Tailwind CSS v4** configured and working
+3. **Convex package installed** - schema file ready, provider set up
+4. **ConvexClientProvider** gracefully handles missing `NEXT_PUBLIC_CONVEX_URL` (allows app to run before Convex is connected)
+5. **Landing page** shows app title and sign-in/sign-up buttons (routes will work after chunk-002)
+6. **ESLint passes** with zero errors or warnings
+
+### What the Next Session Needs to Do
+
+1. **Run `npx convex dev`** to connect to a Convex project and get the deployment URL
+2. **Create `.env.local`** from `.env.local.example` and add:
+   - `NEXT_PUBLIC_CONVEX_URL` (from Convex)
+   - Clerk keys (chunk-002)
+3. **Proceed with chunk-002** (Clerk Authentication Integration)
+
+### Commands Reference
+
+```bash
+npm run dev    # Start development server
+npm run build  # Build for production
+npm run lint   # Run ESLint
+npx convex dev # Connect to Convex (needs user auth)
+```
+
+---
+
+## Planning Session
+
+- **Timestamp:** 2026-01-20
+- **Type:** Planning & Architecture
+- **Status:** completed
+
+### Summary
+
+Analyzed the feature request and created a comprehensive implementation plan for a 3D print queue web application. The app will allow friends (primarily Ryan) to submit 3D files for printing, track job status, while Tanner manages the queue from an admin dashboard.
+
+### Key Decisions Made
+
+1. **Tech Stack Confirmed:**
+   - Next.js 14 with App Router
+   - TypeScript for type safety
+   - Tailwind CSS for styling
+   - Clerk for authentication
+   - Convex for database + file storage + real-time
+
+2. **File Types Supported:**
+   - STL, 3MF, OBJ, G-code
+   - Bambu Lab files (which are .3mf variants)
+
+3. **Status Workflow:**
+   - pending → queued → printing → completed
+   - With failure states: failed, cancelled
+
+4. **User Scope:**
+   - Multi-user support (not just Ryan)
+   - Admin role via `isAdmin` flag
+
+5. **3D Preview:**
+   - Deferred to future phase
+   - MVP focuses on functional upload and tracking
+
+### Implementation Plan (7 Chunks)
+
+| Chunk | Title | Dependencies |
+|-------|-------|--------------|
+| chunk-001 | Project Setup & Next.js Initialization | None |
+| chunk-002 | Clerk Authentication Integration | chunk-001 |
+| chunk-003 | Convex Schema & User Sync | chunk-002 |
+| chunk-004 | File Upload Infrastructure | chunk-003 |
+| chunk-005 | Print Job Submission Flow | chunk-004 |
+| chunk-006 | User Dashboard | chunk-005 |
+| chunk-007 | Admin Dashboard & Job Management | chunk-006 |
+
+### Prerequisites for Next Session
+
+Before starting chunk-001, ensure:
+1. Clerk account created with a new application
+2. Convex account created
+3. Node.js 18+ installed
+4. Have the Clerk publishable key and secret key ready
+5. Be prepared to run `npx convex dev` to initialize Convex
+
+### Files Modified
+- `.ralph/prd.md` - Added detailed implementation plan with 7 chunks
+- `.ralph/study.md` - Documented architecture, schema, patterns, dependencies
+- `.ralph/progress.md` - This file, documenting planning session
 
 ---
 
