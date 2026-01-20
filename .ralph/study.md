@@ -36,10 +36,12 @@ ryan-3d/
 │   │   ├── sign-up/           # Clerk sign-up page
 │   │   │   └── [[...sign-up]]/page.tsx
 │   │   ├── dashboard/         # Protected user dashboard
-│   │   │   ├── page.tsx       # Main dashboard with job list
-│   │   │   └── submit/        # Job submission flow
-│   │   │       └── page.tsx
-│   │   ├── admin/             # Admin-only routes (future)
+│   │   │   ├── page.tsx       # Main dashboard with real-time job list
+│   │   │   ├── submit/        # Job submission flow
+│   │   │   │   └── page.tsx
+│   │   │   └── jobs/          # Job detail views
+│   │   │       └── [id]/page.tsx  # Single job detail page
+│   │   ├── admin/             # Admin-only routes (chunk-007)
 │   │   ├── api/               # API routes if needed
 │   │   ├── layout.tsx         # Root layout with ClerkProvider + ConvexClientProvider
 │   │   └── page.tsx           # Landing page
@@ -48,7 +50,10 @@ ryan-3d/
 │   │   ├── UserSync.tsx       # Syncs Clerk user to Convex on mount
 │   │   ├── FileUpload.tsx     # 3D file upload with drag-and-drop and progress
 │   │   ├── JobSubmissionForm.tsx  # Job submission form with file picker + notes
-│   │   └── ...               # Future feature components
+│   │   ├── StatusBadge.tsx    # Colored status badges for jobs
+│   │   ├── JobCard.tsx        # Job card with click-to-detail
+│   │   ├── JobsList.tsx       # Real-time job list (client component)
+│   │   └── JobDetail.tsx      # Full job detail view with download
 │   ├── middleware.ts          # Clerk auth middleware
 │   └── lib/                   # Utility functions
 ├── convex/                    # Convex backend
@@ -201,6 +206,13 @@ Admin capabilities:
 ---
 
 ## Recent Changes
+
+### 2026-01-19 (chunk-006)
+- Integrated `JobsList` component into dashboard for real-time job display
+- Created job detail page at `/dashboard/jobs/[id]`
+- Created `JobDetail.tsx` component with file download and access control
+- Components already created: `StatusBadge.tsx`, `JobCard.tsx`, `JobsList.tsx`
+- Status badges: pending (yellow), queued (purple), printing (blue), completed (green), failed (red), cancelled (gray)
 
 ### 2026-01-19 (chunk-005)
 - Created `createJob` mutation in `convex/jobs.ts`

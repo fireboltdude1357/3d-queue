@@ -28,7 +28,7 @@ A web application for managing 3D print requests. Friends (starting with Ryan) c
 {
   "feature": "3d-queue",
   "totalChunks": 7,
-  "completedChunks": 5,
+  "completedChunks": 6,
   "chunks": [
     {
       "id": "chunk-001",
@@ -106,7 +106,7 @@ A web application for managing 3D print requests. Friends (starting with Ryan) c
     {
       "id": "chunk-006",
       "title": "User Dashboard",
-      "completed": false,
+      "completed": true,
       "dependencies": ["chunk-005"],
       "acceptanceCriteria": [
         "Dashboard page at /dashboard shows user's jobs",

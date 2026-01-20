@@ -2,8 +2,121 @@
 
 **Feature:** 3d-queue
 **Branch:** `ralph/3d-queue`
-**Sessions Completed:** 5
+**Sessions Completed:** 6
 **Session Limit:** 10
+
+---
+
+## Session 6: chunk-006 - User Dashboard
+
+- **Timestamp:** 2026-01-19
+- **Chunk:** chunk-006
+- **Status:** completed
+
+### Summary
+
+Implemented the User Dashboard with real-time job listing and job detail view. The dashboard now shows all of a user's submitted print jobs with live updates via Convex subscriptions. Users can click on any job to see full details including file download capability.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `src/components/JobDetail.tsx` | Client component for viewing single job with download |
+| `src/app/dashboard/jobs/[id]/page.tsx` | Job detail page route |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `src/app/dashboard/page.tsx` | Integrated JobsList component, removed hardcoded placeholder |
+
+### Files Already Existing (from partial previous work)
+
+| File | Purpose |
+|------|---------|
+| `src/components/StatusBadge.tsx` | Colored badges for each job status |
+| `src/components/JobCard.tsx` | Card component displaying job summary with click-to-detail |
+| `src/components/JobsList.tsx` | Real-time job list with loading/empty states |
+
+### Key Implementation Details
+
+1. **JobsList integration**: Dashboard now uses the `JobsList` client component which subscribes to `getJobsByUser` query for real-time updates
+
+2. **Status badges**: Color-coded badges for each status:
+   - pending: yellow
+   - queued: purple
+   - printing: blue
+   - completed: green
+   - failed: red
+   - cancelled: gray
+
+3. **JobDetail component**:
+   - Shows full job information (filename, type, size, dates, notes)
+   - Downloads file via signed URL from Convex storage
+   - Security check: users can only view their own jobs
+   - Handles loading, not-found, and access-denied states
+
+4. **Real-time updates**: Using Convex `useQuery` hook, all job lists update automatically when data changes (e.g., when admin updates status)
+
+### Acceptance Criteria Met
+
+- [x] Dashboard page at /dashboard shows user's jobs
+- [x] Jobs display: filename, status, submitted date, notes
+- [x] Status shown with colored badges (pending=yellow, printing=blue, etc.)
+- [x] Real-time updates when admin changes status
+- [x] Empty state shown when no jobs exist
+- [x] Jobs sorted by date (newest first)
+- [x] User can click to view job details
+
+### Component API Reference
+
+**StatusBadge Props**
+```typescript
+interface StatusBadgeProps {
+  status: JobStatus;
+  size?: "sm" | "md";
+}
+```
+
+**JobCard Props**
+```typescript
+interface JobCardProps {
+  job: {
+    _id: Id<"printJobs">;
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+    status: JobStatus;
+    notes?: string;
+    createdAt: number;
+  };
+}
+```
+
+**JobsList Props**
+```typescript
+interface JobsListProps {
+  userId: string;  // Clerk user ID
+}
+```
+
+**JobDetail Props**
+```typescript
+interface JobDetailProps {
+  jobId: Id<"printJobs">;
+  currentUserId: string;  // For access control
+}
+```
+
+### What the Next Session Needs to Do
+
+1. **Implement chunk-007** (Admin Dashboard & Job Management)
+2. Create admin page at /admin with access control
+3. Display ALL jobs from ALL users for admin
+4. Add status change functionality (dropdown/buttons)
+5. Add admin notes field
+6. Ensure file download works for admin
+7. Consider adding status filter
 
 ---
 
