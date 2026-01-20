@@ -2,7 +2,7 @@
 
 _This document is maintained by Claude across sessions. It provides context about the codebase structure, patterns, and conventions._
 
-**Last Updated:** 2026-01-20
+**Last Updated:** 2026-01-19
 **Project:** 3D Print Queue for Ryan
 
 ---
@@ -36,7 +36,9 @@ ryan-3d/
 │   │   ├── sign-up/           # Clerk sign-up page
 │   │   │   └── [[...sign-up]]/page.tsx
 │   │   ├── dashboard/         # Protected user dashboard
-│   │   │   └── page.tsx
+│   │   │   ├── page.tsx       # Main dashboard with job list
+│   │   │   └── submit/        # Job submission flow
+│   │   │       └── page.tsx
 │   │   ├── admin/             # Admin-only routes (future)
 │   │   ├── api/               # API routes if needed
 │   │   ├── layout.tsx         # Root layout with ClerkProvider + ConvexClientProvider
@@ -45,14 +47,15 @@ ryan-3d/
 │   │   ├── ConvexClientProvider.tsx  # Convex React provider
 │   │   ├── UserSync.tsx       # Syncs Clerk user to Convex on mount
 │   │   ├── FileUpload.tsx     # 3D file upload with drag-and-drop and progress
-│   │   └── ...               # Feature components
+│   │   ├── JobSubmissionForm.tsx  # Job submission form with file picker + notes
+│   │   └── ...               # Future feature components
 │   ├── middleware.ts          # Clerk auth middleware
 │   └── lib/                   # Utility functions
 ├── convex/                    # Convex backend
 │   ├── schema.ts             # Database schema (users, printJobs tables)
 │   ├── users.ts              # User mutations/queries (syncUser, getUserByClerkId, etc.)
-│   ├── jobs.ts               # Print job queries (getJobsByUser, getAllJobs, etc.)
-│   ├── files.ts              # File storage functions (future - chunk-004)
+│   ├── jobs.ts               # Print job queries and mutations (createJob, getJobsByUser, etc.)
+│   ├── files.ts              # File storage functions (generateUploadUrl, getFileUrl, etc.)
 │   └── _generated/           # Auto-generated Convex types
 ├── public/                    # Static assets
 └── ...config files
@@ -198,6 +201,14 @@ Admin capabilities:
 ---
 
 ## Recent Changes
+
+### 2026-01-19 (chunk-005)
+- Created `createJob` mutation in `convex/jobs.ts`
+- Created job submission page at `/dashboard/submit`
+- `JobSubmissionForm` component integrates `FileUpload` with notes textarea
+- Dashboard updated with "Submit Print Job" button and empty state
+- Form validation: requires file before submission
+- Success flow: shows success message, redirects to dashboard after 1500ms
 
 ### 2026-01-19 (chunk-004)
 - Created `convex/files.ts` with file storage mutations and validation

@@ -28,7 +28,7 @@ A web application for managing 3D print requests. Friends (starting with Ryan) c
 {
   "feature": "3d-queue",
   "totalChunks": 7,
-  "completedChunks": 4,
+  "completedChunks": 5,
   "chunks": [
     {
       "id": "chunk-001",
@@ -91,7 +91,7 @@ A web application for managing 3D print requests. Friends (starting with Ryan) c
     {
       "id": "chunk-005",
       "title": "Print Job Submission Flow",
-      "completed": false,
+      "completed": true,
       "dependencies": ["chunk-004"],
       "acceptanceCriteria": [
         "Job submission form with file picker and notes field",

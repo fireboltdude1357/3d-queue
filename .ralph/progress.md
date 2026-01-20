@@ -2,8 +2,82 @@
 
 **Feature:** 3d-queue
 **Branch:** `ralph/3d-queue`
-**Sessions Completed:** 4
+**Sessions Completed:** 5
 **Session Limit:** 10
+
+---
+
+## Session 5: chunk-005 - Print Job Submission Flow
+
+- **Timestamp:** 2026-01-19
+- **Chunk:** chunk-005
+- **Status:** completed
+
+### Summary
+
+Implemented the print job submission flow. Users can now submit print jobs by uploading a 3D file and adding optional notes. Jobs are created with "pending" status and linked to the user's Clerk ID. Upon successful submission, users see a success message and are redirected to the dashboard.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `src/app/dashboard/submit/page.tsx` | Job submission page with form |
+| `src/components/JobSubmissionForm.tsx` | Client component with file upload + notes form |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `convex/jobs.ts` | Added `createJob` mutation |
+| `src/app/dashboard/page.tsx` | Added "Submit Print Job" button and empty state |
+
+### Key Implementation Details
+
+1. **createJob mutation**: Creates a new print job with status "pending", linking the uploaded file (via storageId) to the user's Clerk ID
+
+2. **JobSubmissionForm component**:
+   - Uses `FileUpload` component from chunk-004
+   - Notes textarea for optional user instructions
+   - Client-side validation (requires file before submit)
+   - Success state with redirect after 1500ms
+
+3. **Dashboard updates**:
+   - "Submit Print Job" button added to dashboard
+   - Empty state shown when no jobs exist
+   - Links to `/dashboard/submit`
+
+### Acceptance Criteria Met
+
+- [x] Job submission form with file picker and notes field
+- [x] createJob mutation creates job with pending status
+- [x] Job linked to current user's Clerk ID
+- [x] File metadata (name, size, type) stored with job
+- [x] Success message shown after submission
+- [x] User redirected to dashboard after submit
+- [x] Form validates required fields before submit
+
+### API Reference
+
+| Function | Type | Purpose |
+|----------|------|---------|
+| `createJob` | mutation | Create new print job with file metadata and user info |
+
+### JobSubmissionForm Props
+
+```typescript
+interface JobSubmitFormProps {
+  userId: string;    // Clerk user ID
+  userName: string;  // Display name for admin view
+}
+```
+
+### What the Next Session Needs to Do
+
+1. **Implement chunk-006** (User Dashboard)
+2. Display user's jobs on the dashboard page
+3. Add real-time updates using Convex's `useQuery`
+4. Implement job status badges with colors
+5. Add job detail view functionality
 
 ---
 
