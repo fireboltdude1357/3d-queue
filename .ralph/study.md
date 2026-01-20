@@ -44,6 +44,7 @@ ryan-3d/
 │   ├── components/            # Reusable React components
 │   │   ├── ConvexClientProvider.tsx  # Convex React provider
 │   │   ├── UserSync.tsx       # Syncs Clerk user to Convex on mount
+│   │   ├── FileUpload.tsx     # 3D file upload with drag-and-drop and progress
 │   │   └── ...               # Feature components
 │   ├── middleware.ts          # Clerk auth middleware
 │   └── lib/                   # Utility functions
@@ -128,10 +129,18 @@ Bambu Lab printers use `.3mf` files with additional metadata.
 - Job status changes reflect instantly in UI
 
 ### File Upload Flow
-1. User selects file in browser
-2. File uploaded directly to Convex storage
-3. Storage ID saved with job record
-4. Files retrievable via signed URLs
+1. User selects file via drag-and-drop or file picker
+2. Client validates file type and size (immediate feedback)
+3. Client calls `generateUploadUrl` mutation (server validates again)
+4. File uploaded directly to Convex storage via signed URL
+5. Storage ID returned and saved with job record
+6. Files retrievable via `getFileUrl` query (signed URLs)
+
+### File Validation
+- **Allowed types:** `.stl`, `.3mf`, `.obj`, `.gcode`
+- **Max size:** 50MB
+- **Validation:** Done by file extension (MIME types unreliable for 3D files)
+- **Dual validation:** Client-side for UX, server-side for security
 
 ---
 
@@ -189,6 +198,14 @@ Admin capabilities:
 ---
 
 ## Recent Changes
+
+### 2026-01-19 (chunk-004)
+- Created `convex/files.ts` with file storage mutations and validation
+- Created `FileUpload.tsx` component with drag-and-drop, progress bar, error states
+- File validation: .stl, .3mf, .obj, .gcode allowed (50MB max)
+- Server-side validation via `generateUploadUrl` mutation
+- `getFileUrl` query for retrieving signed URLs
+- `deleteFile` mutation for cleanup
 
 ### 2026-01-19 (chunk-003)
 - Convex schema fully defined with `users` and `printJobs` tables

@@ -28,7 +28,7 @@ A web application for managing 3D print requests. Friends (starting with Ryan) c
 {
   "feature": "3d-queue",
   "totalChunks": 7,
-  "completedChunks": 3,
+  "completedChunks": 4,
   "chunks": [
     {
       "id": "chunk-001",
@@ -76,7 +76,7 @@ A web application for managing 3D print requests. Friends (starting with Ryan) c
     {
       "id": "chunk-004",
       "title": "File Upload Infrastructure",
-      "completed": false,
+      "completed": true,
       "dependencies": ["chunk-003"],
       "acceptanceCriteria": [
         "Convex file storage configured",

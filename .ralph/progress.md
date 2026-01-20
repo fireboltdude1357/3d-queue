@@ -2,8 +2,90 @@
 
 **Feature:** 3d-queue
 **Branch:** `ralph/3d-queue`
-**Sessions Completed:** 3
+**Sessions Completed:** 4
 **Session Limit:** 10
+
+---
+
+## Session 4: chunk-004 - File Upload Infrastructure
+
+- **Timestamp:** 2026-01-19
+- **Chunk:** chunk-004
+- **Status:** completed
+
+### Summary
+
+Implemented the file upload infrastructure for 3D files. Users can now upload STL, 3MF, OBJ, and G-code files (up to 50MB) via a drag-and-drop or click-to-browse interface. Files are validated on both client and server side before being uploaded to Convex storage.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `convex/files.ts` | File storage mutations/queries (generateUploadUrl, getFileUrl, deleteFile) and validation functions |
+| `src/components/FileUpload.tsx` | Reusable upload component with drag-and-drop, progress bar, and error handling |
+
+### Key Implementation Details
+
+1. **Two-step upload process**:
+   - Client calls `generateUploadUrl` mutation (with server-side validation)
+   - Client uploads file directly to the signed URL
+   - Upload returns a `storageId` for the file
+
+2. **Dual validation**:
+   - Client-side validation for immediate feedback
+   - Server-side validation in `generateUploadUrl` mutation for security
+
+3. **Progress tracking**: Using XMLHttpRequest for upload progress events (fetch API doesn't support progress)
+
+4. **File validation**:
+   - Allowed types: `.stl`, `.3mf`, `.obj`, `.gcode`
+   - Max size: 50MB
+   - Validation by file extension (MIME types unreliable for 3D files)
+
+### Acceptance Criteria Met
+
+- [x] Convex file storage configured
+- [x] File upload mutation accepts files and returns storage ID
+- [x] File type validation rejects non-3D files
+- [x] Accepted types: .stl, .3mf, .obj, .gcode
+- [x] File size limit enforced (50MB max)
+- [x] Upload component shows progress feedback
+- [x] Uploaded files can be retrieved via signed URL
+
+### API Reference
+
+| Function | Type | Purpose |
+|----------|------|---------|
+| `generateUploadUrl` | mutation | Get signed URL for file upload (validates fileName, fileSize) |
+| `getFileUrl` | query | Get signed URL to download/view a file |
+| `deleteFile` | mutation | Delete a file from storage |
+| `validateFile` | helper | Validate file extension and size (exported for client use) |
+
+### FileUpload Component Props
+
+```typescript
+interface FileUploadProps {
+  onUploadComplete: (result: {
+    storageId: Id<"_storage">;
+    fileName: string;
+    fileSize: number;
+    fileType: string;
+  }) => void;
+  onError?: (error: string) => void;
+  disabled?: boolean;
+}
+```
+
+### What the Next Session Needs to Do
+
+1. **Implement chunk-005** (Print Job Submission Flow)
+2. Use the `FileUpload` component in a job submission form
+3. Create a `createJob` mutation that accepts the file storageId and creates a print job
+4. Connect the file upload result to job creation
+
+### TypeScript Note
+
+The TypeScript errors (`Property 'files' does not exist on type '{}'`) are expected until `npx convex dev` is run. This is the same issue noted in session 3 - Convex types need to be regenerated after connecting to a project.
 
 ---
 
