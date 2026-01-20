@@ -107,3 +107,58 @@ export const createJob = mutation({
     return jobId;
   },
 });
+
+/**
+ * Update a job's status.
+ * Admin-only mutation for changing job status through the workflow.
+ */
+export const updateJobStatus = mutation({
+  args: {
+    jobId: v.id("printJobs"),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("queued"),
+      v.literal("printing"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("cancelled")
+    ),
+  },
+  handler: async (ctx, args) => {
+    const job = await ctx.db.get(args.jobId);
+    if (!job) {
+      throw new Error("Job not found");
+    }
+
+    await ctx.db.patch(args.jobId, {
+      status: args.status,
+      updatedAt: Date.now(),
+    });
+
+    return args.jobId;
+  },
+});
+
+/**
+ * Update a job's admin notes.
+ * Admin-only mutation for adding/editing notes on a job.
+ */
+export const updateAdminNotes = mutation({
+  args: {
+    jobId: v.id("printJobs"),
+    adminNotes: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const job = await ctx.db.get(args.jobId);
+    if (!job) {
+      throw new Error("Job not found");
+    }
+
+    await ctx.db.patch(args.jobId, {
+      adminNotes: args.adminNotes,
+      updatedAt: Date.now(),
+    });
+
+    return args.jobId;
+  },
+});

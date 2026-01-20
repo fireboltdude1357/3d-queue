@@ -41,7 +41,8 @@ ryan-3d/
 │   │   │   │   └── page.tsx
 │   │   │   └── jobs/          # Job detail views
 │   │   │       └── [id]/page.tsx  # Single job detail page
-│   │   ├── admin/             # Admin-only routes (chunk-007)
+│   │   ├── admin/             # Admin-only routes
+│   │   │   └── page.tsx       # Admin dashboard with job management
 │   │   ├── api/               # API routes if needed
 │   │   ├── layout.tsx         # Root layout with ClerkProvider + ConvexClientProvider
 │   │   └── page.tsx           # Landing page
@@ -53,7 +54,10 @@ ryan-3d/
 │   │   ├── StatusBadge.tsx    # Colored status badges for jobs
 │   │   ├── JobCard.tsx        # Job card with click-to-detail
 │   │   ├── JobsList.tsx       # Real-time job list (client component)
-│   │   └── JobDetail.tsx      # Full job detail view with download
+│   │   ├── JobDetail.tsx      # Full job detail view with download
+│   │   ├── AdminContent.tsx   # Admin access check and content wrapper
+│   │   ├── AdminJobCard.tsx   # Expandable admin job card with controls
+│   │   └── AdminJobsList.tsx  # Admin job list with status filtering
 │   ├── middleware.ts          # Clerk auth middleware
 │   └── lib/                   # Utility functions
 ├── convex/                    # Convex backend
@@ -206,6 +210,14 @@ Admin capabilities:
 ---
 
 ## Recent Changes
+
+### 2026-01-19 (chunk-007)
+- Created admin dashboard at `/admin` with access control
+- Created `AdminContent.tsx` component for admin status check
+- Created `AdminJobCard.tsx` with expandable design, status controls, notes editing
+- Created `AdminJobsList.tsx` with status filter tabs and count badges
+- Added `updateJobStatus` and `updateAdminNotes` mutations to `convex/jobs.ts`
+- Feature complete: All 7 chunks implemented
 
 ### 2026-01-19 (chunk-006)
 - Integrated `JobsList` component into dashboard for real-time job display

@@ -2,8 +2,123 @@
 
 **Feature:** 3d-queue
 **Branch:** `ralph/3d-queue`
-**Sessions Completed:** 6
+**Sessions Completed:** 7
 **Session Limit:** 10
+
+---
+
+## Session 7: chunk-007 - Admin Dashboard & Job Management
+
+- **Timestamp:** 2026-01-19
+- **Chunk:** chunk-007
+- **Status:** completed
+
+### Summary
+
+Implemented the Admin Dashboard with full job management capabilities. Admins can now view all print jobs from all users, change job statuses, add admin notes, and download files. The page includes access control that shows an error to non-admin users. Status filtering allows admins to quickly find jobs by their current state.
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `src/app/admin/page.tsx` | Admin dashboard page with access control |
+| `src/components/AdminContent.tsx` | Client component for admin status check and content rendering |
+| `src/components/AdminJobCard.tsx` | Expandable card with status controls, notes editing, and download |
+| `src/components/AdminJobsList.tsx` | Real-time job list with status filter tabs |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `convex/jobs.ts` | Added `updateJobStatus` and `updateAdminNotes` mutations |
+
+### Key Implementation Details
+
+1. **Access Control**: Two-layer protection:
+   - Clerk middleware requires authentication to access /admin
+   - `AdminContent` component checks `isUserAdmin` query and shows access denied if not admin
+
+2. **AdminJobCard component**:
+   - Expandable design (click to expand/collapse)
+   - Shows user avatar, name, filename, type, size, date
+   - Status change via clickable StatusBadge buttons
+   - Admin notes textarea with save button
+   - File download button using signed URL
+
+3. **Status filtering**:
+   - Filter tabs: All, Pending, Queued, Printing, Completed, Failed, Cancelled
+   - Each tab shows count badge
+   - Real-time updates when jobs change status
+
+4. **New Convex mutations**:
+   - `updateJobStatus`: Changes job status and updates timestamp
+   - `updateAdminNotes`: Updates admin notes field and timestamp
+
+### Acceptance Criteria Met
+
+- [x] Admin page at /admin accessible only to admins
+- [x] Non-admin users redirected or shown error
+- [x] Admin sees ALL jobs from ALL users
+- [x] Jobs show: user name, filename, status, date
+- [x] Admin can change job status via dropdown/buttons
+- [x] Admin can add notes to jobs
+- [x] Admin can download the uploaded file
+- [x] Filter jobs by status (optional but nice)
+
+### Component API Reference
+
+**AdminContent Props**
+```typescript
+interface AdminContentProps {
+  clerkId: string;  // For admin check
+}
+```
+
+**AdminJobCard Props**
+```typescript
+interface AdminJobCardProps {
+  job: {
+    _id: Id<"printJobs">;
+    userId: string;
+    userName: string;
+    fileId: Id<"_storage">;
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+    status: JobStatus;
+    notes?: string;
+    adminNotes?: string;
+    createdAt: number;
+    updatedAt: number;
+  };
+}
+```
+
+### API Reference (New)
+
+| Function | Type | Purpose |
+|----------|------|---------|
+| `updateJobStatus` | mutation | Update a job's status |
+| `updateAdminNotes` | mutation | Update a job's admin notes |
+
+### Feature Complete
+
+This was the final chunk (7/7). The 3D Print Queue application is now feature-complete:
+
+- ✅ User authentication via Clerk
+- ✅ File upload with validation
+- ✅ Job submission flow
+- ✅ User dashboard with real-time updates
+- ✅ Admin dashboard with job management
+- ✅ Status workflow (pending → queued → printing → completed/failed/cancelled)
+
+### To Make Yourself Admin
+
+Use the Convex dashboard or run this mutation:
+```javascript
+// In Convex dashboard's functions panel
+mutations.users.setUserAdmin({ clerkId: "your-clerk-id", isAdmin: true })
+```
 
 ---
 
