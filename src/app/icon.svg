@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- 3D Cube representing 3D printing -->
+  <!-- Top face -->
+  <path d="M16 4L28 10V22L16 28L4 22V10L16 4Z" fill="#3B82F6"/>
+  <!-- Left face (darker) -->
+  <path d="M4 10L16 16V28L4 22V10Z" fill="#1D4ED8"/>
+  <!-- Right face (medium) -->
+  <path d="M28 10L16 16V28L28 22V10Z" fill="#2563EB"/>
+  <!-- Top face highlight -->
+  <path d="M16 4L28 10L16 16L4 10L16 4Z" fill="#60A5FA"/>
+  <!-- Print layer lines -->
+  <path d="M7 12.5L16 17L25 12.5" stroke="#93C5FD" stroke-width="0.75" stroke-linecap="round"/>
+  <path d="M7 15L16 19.5L25 15" stroke="#93C5FD" stroke-width="0.75" stroke-linecap="round"/>
+  <path d="M7 17.5L16 22L25 17.5" stroke="#93C5FD" stroke-width="0.75" stroke-linecap="round"/>
+</svg>
